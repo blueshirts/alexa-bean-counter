@@ -61,6 +61,5 @@ deploy.env
 .idea/*
 NERD*
 dist/*
-
-
-
+.serverless
+env.yml

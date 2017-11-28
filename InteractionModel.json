@@ -22,6 +22,10 @@
         "samples": []
       },
       {
+        "name": "AMAZON.NoIntent",
+        "samples": []
+      },
+      {
         "name": "AMAZON.PageDownIntent",
         "samples": []
       },
@@ -54,8 +58,43 @@
         "samples": []
       },
       {
-        "name": "QuizQuestionIntent",
-        "samples": [],
+        "name": "AMAZON.YesIntent",
+        "samples": []
+      },
+      {
+        "name": "GetAnswerIntent",
+        "samples": [
+          "{answer}",
+          "{answer} daddy beans",
+          "{answer} beans",
+          "{answer} bean",
+          "I have {answer}",
+          "I have {answer} daddy beans",
+          "I have {answer} beans",
+          "You have {answer} beans",
+          "You have {answer}",
+          "You have {answer} daddy beans",
+          "You have {answer} bean",
+          "You have {answer} daddy bean",
+          "{answer} daddy bean"
+        ],
+        "slots": [
+          {
+            "name": "answer",
+            "type": "AMAZON.NUMBER"
+          }
+        ]
+      },
+      {
+        "name": "QuizIntent",
+        "samples": [
+          "take a quiz",
+          "quiz me",
+          "ask me questions",
+          "test me",
+          "ask me some questions",
+          "start"
+        ],
         "slots": []
       },
       {

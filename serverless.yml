@@ -1,0 +1,31 @@
+service: bean-counter
+
+provider:
+  name: aws
+  versionFunctions: false
+  runtime: nodejs6.10
+  profile: serverless-user
+  stage: beta
+  memorySize: 256
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+       - dynamodb:Query
+       - dynamodb:Scan
+       - dynamodb:GetItem
+       - dynamodb:PutItem
+       - dynamodb:UpdateItem
+       - dynamodb:DeleteItem
+      Resource: ${file(./env.yml):bean-counter-arn}
+
+functions:
+  skill:
+    handler: index.handler
+    events:
+      - alexaSkill
+
+package:
+  exclude:
+    - Gruntfile.js
+    - Makefile
+    - .idea/**
