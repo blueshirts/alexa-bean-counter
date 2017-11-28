@@ -15,7 +15,9 @@ const states = {
 }
 
 const intents = {
-  StartQuizIntent: 'StartQuizIntent'
+  StartQuiz: 'StartQuiz',
+  AskQuestion: 'AskQuestion',
+  GetAnswer: 'GetAnswer'
 }
 
 
@@ -28,7 +30,7 @@ const NewSession = function() {
   const intentName = ctx.intentName(this)
   console.log('Found intent: ' + intentName)
 
-  if (intentName === intents.StartQuizIntent) {
+  if (intentName === intents.StartQuiz) {
     // Start a quiz.
     this.handler.state = states.START_QUIZ
     this.emitWithState(intentName)
@@ -48,7 +50,7 @@ const SessionEndedRequest = function() {
 const DefaultYesIntent = function() {
   // Start a quiz.
   this.handler.state = states.START_QUIZ
-  this.emitWithState(intents.StartQuizIntent)
+  this.emitWithState(intents.StartQuiz)
 }
 
 const DefaultNoIntent = function() {
@@ -79,20 +81,21 @@ const defaultHandlers = {
 // Start Quiz
 //
 
-function StartQuizIntent() {
+function StartQuiz() {
+  console.log('Starting quiz...')
   this.attributes.quiz = {
     correct: 0,
     incorrect: 0,
-    question: 0
+    index: 0
   }
 
   this.handler.state = states.ASK_QUESTION
-  this.emitWithState('AskQuestion')
+  this.emitWithState(intents.AskQuestion)
 }
 
 const startQuizHandlers = Alexa.CreateStateHandler(states.START_QUIZ, {
   'NewSession': NewSessionRedirect,
-  'StartQuizIntent': StartQuizIntent,
+  'StartQuiz': StartQuiz,
   'Unhandled': Unhandled
 })
 
@@ -102,6 +105,7 @@ const startQuizHandlers = Alexa.CreateStateHandler(states.START_QUIZ, {
 //
 
 function AskQuestionIntent() {
+  console.log('Asking question...')
   if (!this.attributes.quiz) {
     // Error
     handleError(this, new Error('No quiz data found.'))
@@ -114,16 +118,21 @@ function AskQuestionIntent() {
   const n2_context = n2 === 1 ? 'bean' : 'beans'
   const answer = n1 + n2
 
-  this.attributes.quiz.n1 = n1
-  this.attributes.quiz.n2 = n2
-  this.attributes.quiz.answer = answer
+  this.attributes.quiz.question = {
+    n1: n1,
+    n2: n2,
+    answer: answer
+  }
+
   const message = [
     voice.slow(`If you have ${voice.number(n1)} daddy ${n1_context} and you add ${voice.number(n2)} daddy ${n2_context}`),
     ', how many daddy beans do you have total?'
   ]
   this.handler.state = states.GET_ANSWER
   this.response.speak(message).listen(message)
-  this.emitWithState(':responseReady')
+
+  // This must be emit, not emit with state or it goes into the unhandled intent.
+  this.emit(':responseReady')
 }
 
 const promptQuestionHandlers = Alexa.CreateStateHandler(states.ASK_QUESTION, {
@@ -138,9 +147,33 @@ const promptQuestionHandlers = Alexa.CreateStateHandler(states.ASK_QUESTION, {
 //
 
 function GetAnswerIntent() {
-  console.log(JSON.stringify(this))
-  const answer = ctx.slot('answer')
-  this.emit(':tell', `You said the answer ${voice.number(answer)}`)
+  console.log('Getting answer...')
+  const answer = ctx.slot(this, 'answer')
+  const message = [
+    `You said the answer ${voice.number(answer)} daddy beans. `
+  ]
+
+  // TODO: Add error handling.
+  if (parseInt(answer) === this.attributes.quiz.question.answer) {
+    message.push(voice.yo())
+    message.push('That answer is correct!')
+    this.attributes.quiz.correct += 1
+  } else {
+    message.push(voice.snap())
+    message.push('Sorry that answer is incorrect.')
+    this.attributes.quiz.incorrect += 1
+  }
+
+  message.push(`You have currently answered ${voice.number(this.attributes.quiz.correct)} `)
+  message.push(`out of ${voice.number(this.attributes.quiz.index)} questions correctly.`)
+
+  console.log(JSON.stringify(message))
+
+  this.attributes.quiz.index += 1
+  this.attributes.quiz.question = null
+
+  this.response.speak(message)
+  this.emit(':responseReady')
 }
 
 const getAnswerHandlers = Alexa.CreateStateHandler(states.GET_ANSWER, {
@@ -172,10 +205,11 @@ function NewSessionRedirect() {
 }
 
 function Unhandled() {
-  const message = [
-    voice.xloud(voice.slow(voice.interjection('doh!'))),
-    ', that\'s not something I understand, please try again.'
-  ]
+  // const message = [
+  //   voice.xloud(voice.slow(voice.interjection('doh!'))),
+  //   ', that\'s not something I understand, please try again.'
+  // ]
+  const message = 'Handler not found, you\'re currently in state: ' + this.handler.state
   this.response.speak(message)
   this.emit(':responseReady')
 }
