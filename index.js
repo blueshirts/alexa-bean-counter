@@ -7,6 +7,8 @@ assert(assert)
 const ctx = require('./src/context')
 const voice = require('./src/voice')
 
+const templates = require('./ssml-speech')
+
 const states = {
   START_QUIZ: 'START_QUIZ',
   ASK_QUESTION: 'ASK_QUESTION',
@@ -20,15 +22,17 @@ const intents = {
   GetAnswer: 'GetAnswer'
 }
 
-
 //
 // Default handlers.
 //
 
+/**
+ * Always fired when a new session is started, even when an intent is triggered.
+ */
 const NewSession = function() {
-  console.log('Default new session...')
   const intentName = ctx.intentName(this)
-  console.log('Found intent: ' + intentName)
+  // console.log('Default new session...')
+  // console.log('Found intent: ' + intentName)
 
   if (intentName === intents.StartQuiz) {
     // Start a quiz.
@@ -36,35 +40,44 @@ const NewSession = function() {
     this.emitWithState(intentName)
   } else {
     // Play an intro messages.
-    const message = ['Welcome to daddy bean counter, would you like to take a quiz?']
-    this.response.speak(message).listen(message)
+    const speech = templates.welcome()
+    this.response.speak(speech).listen(speech)
     this.emit(':responseReady')
   }
 }
 
+/**
+ * Fired on session end, sometimes...
+ */
 const SessionEndedRequest = function() {
   console.log('Received session ended request...')
   ctx.clearState(this)
 }
 
+/**
+ * The user would like to take a quiz.
+ */
 const DefaultYesIntent = function() {
   // Start a quiz.
   this.handler.state = states.START_QUIZ
   this.emitWithState(intents.StartQuiz)
 }
 
+/**
+ * The user would not like to take a quiz.
+ */
 const DefaultNoIntent = function() {
   // Exit
-  const messages = [
-    voice.low(voice.slow('Ok,')),
-    voice.fast(voice.high('whatever'))
-  ]
-  this.response.speak(messages)
+  this.response.speak(templates.goodbye())
   this.emit(':responseReady')
 }
 
+/**
+ * Intent handler to go directly to a quiz.
+ */
 function DefaultQuizIntent() {
-  this.emit(':tell', 'Default quiz intent...')
+  this.handler.state = states.START_QUIZ
+  this.emitWithState(intents.StartQuiz)
 }
 
 const defaultHandlers = {
@@ -112,9 +125,9 @@ function AskQuestionIntent() {
     return
   }
 
-  const n1 = random(0, 10)
+  const n1 = random(0, 5 + 1)
   const n1_context = n1 === 1 ? 'bean' : 'beans'
-  const n2 = random(0, 10)
+  const n2 = random(0, 5 + 1)
   const n2_context = n2 === 1 ? 'bean' : 'beans'
   const answer = n1 + n2
 
@@ -149,29 +162,29 @@ const promptQuestionHandlers = Alexa.CreateStateHandler(states.ASK_QUESTION, {
 function GetAnswerIntent() {
   console.log('Getting answer...')
   const answer = ctx.slot(this, 'answer')
-  const message = [
-    `You said the answer ${voice.number(answer)} daddy beans. `
-  ]
+  const quiz = this.attributes.quiz
+  const isCorrect = parseInt(answer) === quiz.question.answer
 
-  // TODO: Add error handling.
-  if (parseInt(answer) === this.attributes.quiz.question.answer) {
-    message.push(voice.yo())
-    message.push('That answer is correct!')
+  this.attributes.quiz.question = null
+  this.attributes.quiz.index += 1
+  if (isCorrect) {
     this.attributes.quiz.correct += 1
-  } else {
-    message.push(voice.snap())
-    message.push('Sorry that answer is incorrect.')
-    this.attributes.quiz.incorrect += 1
   }
 
-  message.push(`You have currently answered ${voice.number(this.attributes.quiz.correct)} `)
-  message.push(`out of ${voice.number(this.attributes.quiz.index)} questions correctly.`)
+  // message.push(`You have currently answered ${voice.number(quiz.correct)} `)
+  // message.push(`out of ${voice.number(quiz.index)} questions correctly.`)
 
+  const c = {
+    answer: answer,
+    correct: isCorrect,
+    boom: boom,
+    darn: darn,
+    questionCount: this.attributes.quiz.index,
+    correctCount: this.attributes.quiz.correct
+  }
+  const message = templates.answer(c)
+  console.log(JSON.stringify(c))
   console.log(JSON.stringify(message))
-
-  this.attributes.quiz.index += 1
-  this.attributes.quiz.question = null
-
   this.response.speak(message)
   this.emit(':responseReady')
 }
@@ -229,11 +242,30 @@ function handleError(context, err) {
   context.emit(':responseReady')
 }
 
-
 function random(min, max) {
   assert(min === 0 || min)
   assert(max)
   min = Math.ceil(min)
   max = Math.floor(max)
-  return Math.floor(Math.random() * (max - min + 1)) + min
+  return Math.floor(Math.random() * (max - min)) + min
 }
+
+const boomInterjections = [
+  'booya', 'dynomite', 'huzzah', 'kapow', 'spoiler alert', 'woo hoo'
+]
+
+function boom() {
+  const i = random(0, boomInterjections.length)
+  const b = boomInterjections[i]
+  return `${b}!`
+}
+
+const darnInterjections = [
+  'aw man', 'uh oh', 'good grief', 'dun dun dun'
+]
+
+function darn() {
+  const i = random(0, darnInterjections.length)
+  return darnInterjections[i]
+}
+

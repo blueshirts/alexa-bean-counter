@@ -1,24 +1,35 @@
 
+#build: init jshint
+
+#init:
+#	mkdir -p dist
+
+templates:
+	./node_modules/.bin/pug-ssml --templates ./templates
+
 jshint:
-	jshint *.js ./src/ ./test/
+	jshint index.js ./src/ ./test/
+
+build: jshint templates
 
 deploy: beta
 
 remove:
 	serverless remove
 
-init: jshint
-
-beta: init
+beta: build
 	serverless deploy
 
-prod: init
+prod: build
 	serverless deploy --stage prod
 
-update-beta: init
+update-beta: build
 	serverless deploy --function skill
 
-update-prod: init
+update-prod: build
 	serverless deploy --function skill --stage prod
 
-.PHONY: deploy remove init jshint beta prod update-beta update-prod
+clean:
+	rm -rf ./ssml-speech.js
+
+.PHONY: init jshint templates build deploy remove beta prod update-beta update-prod clean

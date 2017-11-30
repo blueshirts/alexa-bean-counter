@@ -1,0 +1,24 @@
+s
+  | You said,
+  +number #{answer}.
+
+if correct
+  s
+    +x-loud
+      +slow
+        | #{boom()}
+  s
+    +fast
+      +number #{answer}
+      | , is the correct answer!
+else
+  s
+    +slow
+      +loud
+        | #{darn()}
+  s
+    +number #{answer}
+    | is the incorrect answer.
+
+s
+  | You have currently answered #{correctCount} out of #{questionCount} questions correctly.
