@@ -26,7 +26,7 @@
   "devDependencies": {
     "chai": "^4.1.x",
     "mocha": "^4.0.x",
-    "pug-ssml": "0.0.11",
+    "pug-ssml": "0.0.14",
     "pug-ssml-cli": "0.0.5"
   }
 }

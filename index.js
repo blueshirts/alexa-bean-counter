@@ -5,7 +5,6 @@ const assert = require('assert')
 assert(assert)
 
 const ctx = require('./src/context')
-const voice = require('./src/voice')
 
 const templates = require('./ssml-speech')
 
@@ -125,23 +124,16 @@ function AskQuestionIntent() {
     return
   }
 
-  const n1 = random(0, 5 + 1)
-  const n1_context = n1 === 1 ? 'bean' : 'beans'
-  const n2 = random(0, 5 + 1)
-  const n2_context = n2 === 1 ? 'bean' : 'beans'
-  const answer = n1 + n2
-
+  const n1 = random(0, 6)
+  const n2 = random(0, 6)
   this.attributes.quiz.question = {
     n1: n1,
     n2: n2,
-    answer: answer
+    answer: n1 + n2
   }
 
-  const message = [
-    voice.slow(`If you have ${voice.number(n1)} daddy ${n1_context} and you add ${voice.number(n2)} daddy ${n2_context}`),
-    ', how many daddy beans do you have total?'
-  ]
   this.handler.state = states.GET_ANSWER
+  const message = templates.question(this.attributes.quiz.question)
   this.response.speak(message).listen(message)
 
   // This must be emit, not emit with state or it goes into the unhandled intent.
@@ -183,8 +175,6 @@ function GetAnswerIntent() {
     correctCount: this.attributes.quiz.correct
   }
   const message = templates.answer(c)
-  console.log(JSON.stringify(c))
-  console.log(JSON.stringify(message))
   this.response.speak(message)
   this.emit(':responseReady')
 }
@@ -222,7 +212,9 @@ function Unhandled() {
   //   voice.xloud(voice.slow(voice.interjection('doh!'))),
   //   ', that\'s not something I understand, please try again.'
   // ]
-  const message = 'Handler not found, you\'re currently in state: ' + this.handler.state
+  const message = templates.unhandled({
+    state: this.handler.state
+  })
   this.response.speak(message)
   this.emit(':responseReady')
 }
@@ -237,8 +229,7 @@ function handleError(context, err) {
     console.trace()
   }
   context.response
-    .speak('<say-as interpret-as="interjection">Shucks!</say-as>')
-    .speak('I am having trouble figuring out who said meow.  Try again right meow!')
+    .speak(templates.error())
   context.emit(':responseReady')
 }
 
@@ -251,7 +242,7 @@ function random(min, max) {
 }
 
 const boomInterjections = [
-  'booya', 'dynomite', 'huzzah', 'kapow', 'spoiler alert', 'woo hoo'
+  'booya', 'dynomite', 'kapow', 'spoiler alert', 'woo hoo'
 ]
 
 function boom() {

@@ -1,0 +1,24 @@
+mixin beans(n)
+  if n === 1
+    | bean
+  else
+    | beans
+
+s
+  +slow
+    | If you have
+  +x-slow
+    +loud
+      +number #{n1}
+  +fast
+    | daddy
+  +beans(n1)
+  break(strength="medium")
+  +slow
+    | and you add
+  +x-slow
+    +loud
+      +number #{n2}
+  +fast daddy
+  +beans(n2)
+  | ,then how many daddy beans do you have total?

@@ -4,11 +4,14 @@
 #init:
 #	mkdir -p dist
 
-templates:
+templates: puglint
 	./node_modules/.bin/pug-ssml --templates ./templates
 
 jshint:
 	jshint index.js ./src/ ./test/
+
+puglint:
+	pug-lint ./templates/*.pug
 
 build: jshint templates
 
@@ -32,4 +35,4 @@ update-prod: build
 clean:
 	rm -rf ./ssml-speech.js
 
-.PHONY: init jshint templates build deploy remove beta prod update-beta update-prod clean
+.PHONY: init jshint puglint templates build deploy remove beta prod update-beta update-prod clean

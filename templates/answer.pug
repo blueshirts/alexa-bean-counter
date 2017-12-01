@@ -5,17 +5,19 @@ s
 if correct
   s
     +x-loud
-      +slow
-        | #{boom()}
+      +strong
+        +high
+          | #{boom()}
   s
-    +fast
+    +reduced
       +number #{answer}
       | , is the correct answer!
 else
   s
-    +slow
-      +loud
-        | #{darn()}
+    +strong
+      +slow
+        +loud
+          | #{darn()}
   s
     +number #{answer}
     | is the incorrect answer.
