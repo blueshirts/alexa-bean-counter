@@ -19,14 +19,13 @@
   "bugs": {},
   "homepage": "https://github.com/blueshirts/alexa-bean-counter#readme",
   "dependencies": {
-    "alexa-sdk": "^1.0.x",
-    "chalk": "^2.3.0",
-    "mkdirp": "^0.5.1"
+    "alexa-sdk": "^1.0.x"
   },
   "devDependencies": {
+    "alexa-conversation": "^0.2.0",
     "chai": "^4.1.x",
     "mocha": "^4.0.x",
-    "pug-ssml": "0.0.14",
-    "pug-ssml-cli": "0.0.5"
+    "pug-ssml": "^0.0.16",
+    "pug-ssml-cli": "^0.0.13"
   }
 }

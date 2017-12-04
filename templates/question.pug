@@ -4,21 +4,28 @@ mixin beans(n)
   else
     | beans
 
+if quiz.index === 0
+  s
+    | Ok, lets get started.
+else
+  s
+    | Ok, lets go on to the next question.
+
 s
   +slow
     | If you have
   +x-slow
     +loud
-      +number #{n1}
+      +number #{question.n1}
   +fast
     | daddy
-  +beans(n1)
+  +beans(question.n1)
   break(strength="medium")
   +slow
     | and you add
   +x-slow
     +loud
-      +number #{n2}
+      +number #{question.n2}
   +fast daddy
-  +beans(n2)
+  +beans(question.n2)
   | ,then how many daddy beans do you have total?

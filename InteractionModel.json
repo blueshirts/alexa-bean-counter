@@ -86,23 +86,13 @@
         ]
       },
       {
-        "name": "QuizIntent",
-        "samples": [
-          "take a quiz",
-          "quiz me",
-          "ask me questions",
-          "test me",
-          "ask me some questions",
-          "start"
-        ],
-        "slots": []
-      },
-      {
         "name": "StartQuizIntent",
         "samples": [
           "take a quiz",
           "quiz me",
-          "start a quiz"
+          "start a quiz",
+          "test me",
+          "start"
         ],
         "slots": []
       }

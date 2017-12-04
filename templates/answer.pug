@@ -1,8 +1,4 @@
-s
-  | You said,
-  +number #{answer}.
-
-if correct
+if isCorrect
   s
     +x-loud
       +strong
@@ -10,7 +6,8 @@ if correct
           | #{boom()}
   s
     +reduced
-      +number #{answer}
+      +number
+        | #{question.answer}
       | , is the correct answer!
 else
   s
@@ -19,8 +16,42 @@ else
         +loud
           | #{darn()}
   s
-    +number #{answer}
+    +number
+      | #{userAnswer}
     | is the incorrect answer.
 
-s
-  | You have currently answered #{correctCount} out of #{questionCount} questions correctly.
+break(strength="medium")
+
+if quiz.index === quiz.total
+  //- The quiz is done.
+  s
+    +loud
+      | Congratulations!
+  s
+    | You have completed the quiz and answered
+    +number
+      | #{quiz.correct}
+    | out of
+    +number
+      | #{quiz.total}
+    | questions correctly.
+  s
+    | You're final score is
+    +number
+      | #{quiz.score}
+    | percent.
+else
+  //- There are more questions.
+  s
+    | You have currently answered
+    +number
+      | #{quiz.correct}
+    | out of
+    +number
+      | #{quiz.total}
+    | questions correctly.
+  s
+    | Your current score is
+    +number
+      | #{quiz.score}
+    | percent.
