@@ -130,7 +130,7 @@ const getAnswer = function() {
   this.attributes.quiz.score =
     this.attributes.quiz.correct === 0 ? 0 : Math.round(this.attributes.quiz.correct / this.attributes.quiz.index * 100)
 
-  const c = {
+  const answerContext = {
     userAnswer: userAnswer,
     isCorrect: isCorrect,
     quiz: this.attributes.quiz,
@@ -140,16 +140,23 @@ const getAnswer = function() {
   }
 
   // Generate the response to the users answer.
-  const answerMessage = templates.answer(c)
+  const answerMessage = templates.answer(answerContext)
 
   if (this.attributes.quiz.index < this.attributes.quiz.total) {
     // Create a new question.
     this.attributes.question = generateQuestion()
 
-    // Generate the message for the next question.
-    const questionMessage = templates.question(this.attributes)
     // Send the response to the answer and the next question.
-    this.response.speak(`${answerMessage} ${questionMessage}`).listen(questionMessage)
+    const questionContext = {
+      initial: true,
+      quiz: this.attributes.quiz,
+      question: this.attributes.question
+    }
+    this.response.speak(`${answerMessage} ${templates.question(questionContext)}`)
+
+    // Only ask the question on re-prompt.
+    questionContext.initial = false
+    this.response.listen(templates.question(questionContext))
     this.emit(':responseReady')
   } else {
     // End the quiz.
@@ -191,8 +198,8 @@ function createHandler(handlers) {
  * Generate a question.
  */
 function generateQuestion() {
-  const n1 = utils.random(0, 6)
-  const n2 = utils.random(0, 6)
+  const n1 = utils.random(1, 6)
+  const n2 = utils.random(1, 6)
   if (n1 === 0 && n2 === 0) {
     // Re-roll.
     return generateQuestion()

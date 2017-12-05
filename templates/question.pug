@@ -4,12 +4,13 @@ mixin beans(n)
   else
     | beans
 
-if quiz.index === 0
-  s
-    | Ok, lets get started.
-else
-  s
-    | Ok, lets go on to the next question.
+if initial
+  if quiz.index === 0
+    s
+      | Ok, lets get started.
+  else
+    s
+      | Ok, lets go on to the next question.
 
 s
   +slow
@@ -29,3 +30,4 @@ s
   +fast daddy
   +beans(question.n2)
   | ,then how many daddy beans do you have total?
+
