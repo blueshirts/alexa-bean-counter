@@ -33,7 +33,7 @@ if quiz.index === quiz.total
       | #{quiz.correct}
     | out of
     +number
-      | #{quiz.total}
+      | #{quiz.index}
     | questions correctly.
   s
     | You're final score is
@@ -48,7 +48,7 @@ else
       | #{quiz.correct}
     | out of
     +number
-      | #{quiz.index + 1}
+      | #{quiz.index}
     | questions correctly.
   s
     | Your current score is
