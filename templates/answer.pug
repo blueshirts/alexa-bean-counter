@@ -2,8 +2,7 @@ if isCorrect
   s
     +x-loud
       +strong
-        +high
-          | #{boom()}
+        | #{boom()}
   s
     +reduced
       +number
@@ -19,6 +18,9 @@ else
     +number
       | #{userAnswer}
     | is the incorrect answer.
+  s
+    | The correct answer is
+    +number #{question.answer}
 
 break(strength="medium")
 

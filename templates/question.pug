@@ -23,11 +23,23 @@ s
   +beans(question.n1)
   break(strength="medium")
   +slow
-    | and you add
+    | and you
+  if question.operator === '+'
+    +slow add
+  else if question.operator === '-'
+    +slow subtract
+  else
+    | Unknown operator type found.
   +x-slow
     +loud
       +number #{question.n2}
   +fast daddy
   +beans(question.n2)
-  | ,then how many daddy beans do you have total?
+
+  if question.operator === '+'
+    | ,then how many daddy beans do you have total?
+  else if question.operator === '-'
+    | ,then how many daddy beans do you have left?
+  else
+    | Unknown operator type found.
 
