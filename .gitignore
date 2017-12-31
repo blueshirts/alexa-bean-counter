@@ -56,4 +56,10 @@ typings/
 
 # dotenv environment variables file
 .env
+deploy.env
 
+.idea/*
+NERD*
+dist/*
+.serverless
+env.yml

@@ -1,0 +1,31 @@
+{
+  "name": "alexa-bean-counter",
+  "version": "1.0.0",
+  "description": "An Alexa skill to play who said meow.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blueshirts/alexa-round-timer.git"
+  },
+  "keywords": [
+    "alexa",
+    "bjj",
+    "bean",
+    "counter"
+  ],
+  "author": "Anthony Milano",
+  "license": "UNLICENSED",
+  "bugs": {},
+  "homepage": "https://github.com/blueshirts/alexa-bean-counter#readme",
+  "dependencies": {
+    "alexa-sdk": "^1.0.x"
+  },
+  "devDependencies": {
+    "alexa-conversation": "^0.2.0",
+    "chai": "^4.1.x",
+    "mocha": "^4.0.x",
+    "pug-ssml": "^0.0.16",
+    "pug-ssml-cli": "^0.0.13"
+  }
+}

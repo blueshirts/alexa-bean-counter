@@ -1,0 +1,45 @@
+mixin beans(n)
+  if n === 1
+    | bean
+  else
+    | beans
+
+if initial
+  if quiz.index === 0
+    s
+      | Ok, lets get started.
+  else
+    s
+      | Ok, lets go on to the next question.
+
+s
+  +slow
+    | If you have
+  +x-slow
+    +loud
+      +number #{question.n1}
+  +fast
+    | daddy
+  +beans(question.n1)
+  break(strength="medium")
+  +slow
+    | and you
+  if question.operator === '+'
+    +slow add
+  else if question.operator === '-'
+    +slow subtract
+  else
+    | Unknown operator type found.
+  +x-slow
+    +loud
+      +number #{question.n2}
+  +fast daddy
+  +beans(question.n2)
+
+  if question.operator === '+'
+    | ,then how many daddy beans do you have total?
+  else if question.operator === '-'
+    | ,then how many daddy beans do you have left?
+  else
+    | Unknown operator type found.
+

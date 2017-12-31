@@ -1,0 +1,59 @@
+if isCorrect
+  s
+    +x-loud
+      +strong
+        | #{boom()}
+  s
+    +reduced
+      +number
+        | #{question.answer}
+      | , is the correct answer!
+else
+  s
+    +strong
+      +slow
+        +loud
+          | #{darn()}
+  s
+    +number
+      | #{userAnswer}
+    | is the incorrect answer.
+  s
+    | The correct answer is
+    +number #{question.answer}
+
+break(strength="medium")
+
+if quiz.index === quiz.total
+  //- The quiz is done.
+  s
+    +loud
+      | Congratulations!
+  s
+    | You have completed the quiz and answered
+    +number
+      | #{quiz.correct}
+    | out of
+    +number
+      | #{quiz.index}
+    | questions correctly.
+  s
+    | You're final score is
+    +number
+      | #{quiz.score}
+    | percent.
+else
+  //- There are more questions.
+  s
+    | You have currently answered
+    +number
+      | #{quiz.correct}
+    | out of
+    +number
+      | #{quiz.index}
+    | questions correctly.
+  s
+    | Your current score is
+    +number
+      | #{quiz.score}
+    | percent.
