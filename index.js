@@ -37,13 +37,16 @@ const unhandled = function () {
   this.emit(':responseReady')
 }
 
-const help = function() {
-  const message = 'Coming soon!'
+/**
+ * Standard skill help.
+ */
+const help = function () {
+  const message = templates.help()
   this.response.speak(message).listen(message)
   this.emit(':responseReady')
 }
 
-const cancel = function() {
+const cancel = function () {
   this.response.speak(templates.goodbye())
   if (supportsDisplay(this)) {
     this.response.renderTemplate(getGoodbyeTemplate(this.attributes))
@@ -85,15 +88,7 @@ const defaultNewSession = function () {
   }
 }
 
-const defaultHandlers = createHandler({
-  'NewSession': defaultNewSession
-})
-
-//
-// Start handlers.
-//
-
-const startYes = function () {
+const startQuiz = function () {
   this.attributes.quiz = {
     correct: 0,     // The number of correct questions.
     incorrect: 0,   // The number of incorrect questions.
@@ -116,6 +111,15 @@ const startYes = function () {
   this.emit(':responseReady')
 }
 
+const defaultHandlers = createHandler({
+  'NewSession': defaultNewSession,
+  'StartQuizIntent': startQuiz
+})
+
+//
+// Start handlers.
+//
+
 const startNo = function () {
   this.response.speak('Ok, see you later.')
   if (supportsDisplay(this)) {
@@ -125,7 +129,7 @@ const startNo = function () {
 }
 
 const startHandlers = createStateHandler(states.start, {
-  'AMAZON.YesIntent': startYes,
+  'AMAZON.YesIntent': startQuiz,
   'AMAZON.NoIntent': startNo
 })
 
@@ -154,6 +158,12 @@ const questionHandlers = createStateHandler(states.question, {
  */
 const getAnswer = function () {
   const userAnswer = parseInt(helpers.slot(this, 'answer'))
+  if (isNaN(userAnswer)) {
+    // answer is not relevant
+    this.response.speak(templates.answer_invalid()).listen(templates.answer_invalid())
+    this.emit(':responseReady')
+    return // **EXIT**
+  }
   const isCorrect = userAnswer === this.attributes.question.answer
 
   // Increment the question index.
@@ -189,7 +199,6 @@ const getAnswer = function () {
 
     // Send the response to the answer and the next question.
     const questionContext = {
-      initial: true,
       quiz: this.attributes.quiz,
       question: this.attributes.question
     }
@@ -202,7 +211,6 @@ const getAnswer = function () {
     }
 
     // Only ask the question on re-prompt.
-    questionContext.initial = false
     this.response.listen(templates.question(questionContext))
     this.emit(':responseReady')
   } else {
@@ -219,7 +227,10 @@ const getAnswer = function () {
       // update the points
       if (this.attributes.quiz.score >= 80) {
         this.attributes.stats.points += 25
+      } else if (this.attributes.quiz.score <= 40) {
+        this.attributes.stats.points -= 25
       }
+
       // update the level.
       if (this.attributes.stats.points >= 300) {
         this.attributes.stats.level = 3
@@ -227,6 +238,8 @@ const getAnswer = function () {
         this.attributes.stats.level = 2
       } else if (this.attributes.stats.points >= 100) {
         this.attributes.stats.level = 1
+      } else if (this.attributes.stats.points < 100) {
+        this.attributes.stats.level = 0
       }
     }
 
@@ -258,7 +271,7 @@ function supportsDisplay(that) {
     that.event.context.System.device.supportedInterfaces.Display
 }
 
-const getWelcomeTemplate = function() {
+const getWelcomeTemplate = function () {
   const builder = new Alexa.templateBuilders.BodyTemplate6Builder()
   const primaryRichText = textUtils.makeRichText(templates.welcome_primary())
   // const secondaryRichText = textUtils.makeRichText(templates.welcome_secondary())
@@ -279,7 +292,7 @@ function getCompleteTemplate(context) {
     .build()
 }
 
-const getDisplayTemplate = function(title, primary, secondary = null, tertiary = null) {
+const getDisplayTemplate = function (title, primary, secondary = null, tertiary = null) {
   const builder = new Alexa.templateBuilders.BodyTemplate1Builder()
   const primaryRichText = primary ? textUtils.makeRichText(primary) : undefined
   const secondaryRichText = secondary ? textUtils.makeRichText(secondary) : undefined
@@ -291,7 +304,7 @@ const getDisplayTemplate = function(title, primary, secondary = null, tertiary =
     .build()
 }
 
-const getGoodbyeTemplate = function(context) {
+const getGoodbyeTemplate = function (context) {
   const builder = new Alexa.templateBuilders.BodyTemplate1Builder()
   const primary = textUtils.makeRichText(templates.goodbye_primary(context))
   return builder.setTitle('Bean Counter')
@@ -332,9 +345,9 @@ function generateQuestion(context) {
     operatorIndex = utils.random(0, 2)
   } else if (context.stats.level === 2) {
     max = 10
-    operatorIndex = utils.random(0, 2)
-  } else {
-    max = 15
+    operatorIndex = 0
+  } else if (context.stats.level >= 3) {
+    max = 10
     operatorIndex = utils.random(0, 2)
   }
   let n1 = utils.random(1, max + 1)
