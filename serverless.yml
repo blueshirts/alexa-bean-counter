@@ -6,6 +6,7 @@ provider:
   runtime: nodejs6.10
   profile: serverless-user
   stage: beta
+  deploymentBucket: madziki-serverless
   memorySize: 256
   iamRoleStatements:
     - Effect: "Allow"

@@ -4,13 +4,12 @@ mixin beans(n)
   else
     | beans
 
-if initial
-  if quiz.index === 0
-    s
-      | Ok, lets get started.
-  else
-    s
-      | Ok, lets go on to the next question.
+if quiz.index === 0
+  s
+    | Ok, lets get started.
+else
+  s
+    | Ok, lets go on to the next question.
 
 s
   +slow
